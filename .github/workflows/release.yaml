@@ -121,3 +121,26 @@ jobs:
           args: release --config .goreleaser-release.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-binaries:                                                                                       
+    needs: release                                                                                     
+    runs-on: ubuntu-20.04                                                                         
+    steps:                                                                                             
+      - name: Checkout                                                                                 
+        uses: actions/checkout@v3                                                                      
+        with:                                                                                          
+          fetch-depth: 0                                                                               
+      - name: Make directories                                                                         
+        run: |                                                                                         
+          mkdir -p ./build                                                                             
+      - name: Download binaries                                                                        
+        uses: actions/download-artifact@v3                                                             
+        with:                                                                                          
+          name: mev-boost-build                                                                        
+          path: ./build                                                                                
+      - name: Test binaries                                                                            
+        run: |                                                                                         
+          cd ./build                                                                                
+          tar -xf mev-boost_*_linux_amd64.tar.gz                                                    
+          chmod 755  mev-boost                                                                      
+          ./mev-boost -version 
